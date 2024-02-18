@@ -1,44 +1,28 @@
-This package allows to infer copolymerization reactivity ratios for arbitrarily correlated data assuming a Gaussian covariance. The final inference takes the non-linearity of the model into account. Details on the methodology can be found in [Reischke 2023](https://onlinelibrary.wiley.com/doi/epdf/10.1002/mats.202200063)
+This package allows to infer copolymerization reactivity ratios for arbitrarily correlated data assuming a Gaussian covariance. The final inference takes the non-linearity of the model into account. Details on the methodology can be found in [Reischke 2023](https://onlinelibrary.wiley.com/doi/epdf/10.1002/mats.202200063).
 
 ## Installation and Examples
-For starters you first clone the directory via:
+For starters you first clone or download the directory
 ```shell
-git clone git@github.com:rreischke/OneCovariance.git
+git clone git@github.com:rreischke/polyfit.git
 ```
 or
 ```shell
-git clone https://github.com/rreischke/OneCovariance.git
+git clone https://github.com/rreischke/polyfit.git
 ```
 Then navigate to the cloned directory
 ```shell
-cd OneCovariance
-conda env create -f conda_env.yaml
-conda activate cov20_env
+cd polyfit
 pip install .
 ```
-On some Linux servers you will have to install ``gxx_linux-64`` by hand and the installation will not work. This usually shows the following error message in the terminal:
-``
-gcc: fatal error: cannot execute 'cc1plus': execvp: No such file or directory
-``
-If this is the case just install it by typing
-```shell
- conda install -c conda-forge gxx_linux-64
-```
-and redo the ``pip`` installation.
 
-If you do not want to use the conda environment make sure that you have ``gfortran`` and ``gsl`` installed.
-You can install both via ``conda``:
+Once you have installed the external package via ``pip install`` the code simply runs by using the ``input.ini`` where all parameters are stored and explained. Running the script
 ```shell
-conda install -c conda-forge gfortran
-conda install -c conda-forge gsl
-conda install -c conda-forge gxx_linux-64
-git clone git@github.com:rreischke/OneCovariance.git
-cd OneCovariance    
-pip install .
+python main.py
 ```
-Once you have installed the external package via ``pip install`` the code simply runs by using the ``config.ini`` where all parameters are stored and explained. Running the script
+will run the code using the settings in the standard configuration file ``input.ini``. You can always use your own ``my_input.ini`` and run via:
 ```shell
-python covariance.py
+python main.py my_input.ini
 ```
-will run the code using the settings in the standard configuration file ``config.ini``. 
+
+If you simply run the standard ``input.ini`` it will use the data described in [Scott and Penlidis (2017)](https://www.mdpi.com/2227-9717/6/1/8) with a relative error of five percent on both the dependent and independent variable. The produced output will contain the three plots for the parameter inference, i.e. the 2 one dimensional marginals and the contour plot. The fourth plot is the data with the best fit curve. The data to produce these four plots is also stored in two ``.txt`` files named ``posterior_scott`` and ``bestfist_model_scott``. The results of the fitting are stored in ``results_scott.txt``, listing the pest fit value, the symmetric Gaussian error (corresponding to the red curves) and the real error on the parameters taking the non-linearity of the model into account (blue curve in the plot).
 

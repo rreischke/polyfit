@@ -1,12 +1,12 @@
 ### Results
 
-The best fit values are: (p1,p2) = (1.7611853623525093, 1.0232073048320625)
+The best fit values are: (p1,p2) = (1.7833858714819206, 1.0326746284382171)
 
-Corresponding symmetric one sigma Gaussian errors are: (1.0054879036890225,0.49928623403671823)
+Corresponding symmetric one sigma Gaussian errors are: (0.6122406313869754,0.31159393504903815)
 
-Corresponding real left errors are: -(-0.3589359680895614,-0.17773555921276185)
+Corresponding real left errors are: -(0.15943068037952468,0.08350626121394122)
 
-Corresponding real right errors are: +(6.932390987706108,3.3210951702733005)
+Corresponding real right errors are: +(2.197210022116872,1.109851719257795)
 
-The contour levels to plot the confidence intervals from the posterior text files are: 0.03238789062062822, 0.009990368323422018, 0.0011056339942640734 for 68.3%, 95.4%, and 99.7%, respectively 
+The contour levels to plot the confidence intervals from the posterior text files are: 0.20392339338950483, 0.019139719359765377, 0.0026842740438095445 for 68.3%, 95.4%, and 99.7%, respectively 
 

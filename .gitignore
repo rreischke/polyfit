@@ -1,0 +1,8 @@
+.DS_Store
+*.ipynb
+*.pyc
+*.so
+*.o
+*.egg
+__pycache__
+.vscode
