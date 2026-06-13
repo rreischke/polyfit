@@ -198,12 +198,12 @@ class PolyfitGUI(tk.Tk):
         self._sb = tk.Frame(top, bg=SIDEBAR_BG, width=190)
         self._sb.pack(side=tk.LEFT, fill=tk.Y)
         self._sb.pack_propagate(False)
-        tk.Label(self._sb, text="polyfit", font=("Arial", 17, "bold"),
+        tk.Label(self._sb, text="polyfit", font=("Arial", 19, "bold"),
                  bg=SIDEBAR_BG, fg="white", pady=20).pack(fill=tk.X)
         self._sb_labels: list[tk.Label] = []
         for i, name in enumerate(self.STEPS):
             lbl = tk.Label(self._sb, text=f"  {i + 1}. {name}",
-                           font=("Arial", 10), anchor="w",
+                           font=("Arial", 12), anchor="w",
                            bg=SIDEBAR_BG, fg=MUTED, padx=12, pady=6)
             lbl.pack(fill=tk.X)
             self._sb_labels.append(lbl)
@@ -211,7 +211,7 @@ class PolyfitGUI(tk.Tk):
         # citation at the bottom of the sidebar
         tk.Label(self._sb,
                  text="Reischke 2023\nMacromol. Theory Simul.\nDOI: 10.1002/mats.202200063",
-                 font=("Arial", 7), bg=SIDEBAR_BG, fg="#567A9E",
+                 font=("Arial", 9), bg=SIDEBAR_BG, fg="#567A9E",
                  justify=tk.CENTER, wraplength=160, pady=8,
                  ).pack(side=tk.BOTTOM, fill=tk.X)
 
@@ -233,10 +233,10 @@ class PolyfitGUI(tk.Tk):
 
     def _make_step_frame(self, title: str, subtitle: str = "") -> tk.Frame:
         f = tk.Frame(self._content, bg=BG)
-        tk.Label(f, text=title, font=("Arial", 18, "bold"),
+        tk.Label(f, text=title, font=("Arial", 20, "bold"),
                  bg=BG, fg=SIDEBAR_BG).pack(anchor="w", padx=30, pady=(26, 0))
         if subtitle:
-            tk.Label(f, text=subtitle, font=("Arial", 10),
+            tk.Label(f, text=subtitle, font=("Arial", 12),
                      bg=BG, fg="#555").pack(anchor="w", padx=30, pady=(2, 6))
         ttk.Separator(f).pack(fill="x", padx=30, pady=(4, 14))
         return f
@@ -245,7 +245,7 @@ class PolyfitGUI(tk.Tk):
     def _field(parent, label: str, var, width: int = None):
         row = tk.Frame(parent, bg=BG)
         row.pack(fill=tk.X, padx=30, pady=4)
-        tk.Label(row, text=label, font=("Arial", 10), bg=BG,
+        tk.Label(row, text=label, font=("Arial", 12), bg=BG,
                  width=26, anchor="w").pack(side=tk.LEFT)
         kw = {"textvariable": var}
         if width:
@@ -256,7 +256,7 @@ class PolyfitGUI(tk.Tk):
     def _browse_field(parent, label: str, var, filetypes=(("All files", "*.*"),)):
         row = tk.Frame(parent, bg=BG)
         row.pack(fill=tk.X, padx=30, pady=4)
-        tk.Label(row, text=label, font=("Arial", 10), bg=BG,
+        tk.Label(row, text=label, font=("Arial", 12), bg=BG,
                  width=26, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(row, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(row, text="Browse…",
@@ -268,7 +268,7 @@ class PolyfitGUI(tk.Tk):
     def _saveas_field(parent, label: str, var):
         row = tk.Frame(parent, bg=BG)
         row.pack(fill=tk.X, padx=30, pady=3)
-        tk.Label(row, text=label, font=("Arial", 10), bg=BG,
+        tk.Label(row, text=label, font=("Arial", 12), bg=BG,
                  width=26, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(row, textvariable=var).pack(side=tk.LEFT, fill=tk.X, expand=True)
         ttk.Button(row, text="Browse…",
@@ -283,7 +283,7 @@ class PolyfitGUI(tk.Tk):
     def _colour_row(self, parent, label: str, var):
         row = tk.Frame(parent, bg=BG)
         row.pack(fill=tk.X, padx=30, pady=4)
-        tk.Label(row, text=label, font=("Arial", 10), bg=BG,
+        tk.Label(row, text=label, font=("Arial", 12), bg=BG,
                  width=26, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(row, textvariable=var, width=12).pack(side=tk.LEFT)
         swatch = tk.Label(row, width=3, relief="solid")
@@ -318,7 +318,7 @@ class PolyfitGUI(tk.Tk):
     def _cov_block(self, parent, label: str,
                    mode_var, value_var, file_var):
         box = tk.LabelFrame(parent, text=label, bg=BG,
-                            font=("Arial", 10, "bold"), padx=10, pady=6)
+                            font=("Arial", 12, "bold"), padx=10, pady=6)
         box.pack(fill=tk.X, padx=4, pady=6)
 
         for text, val in [
@@ -390,10 +390,10 @@ class PolyfitGUI(tk.Tk):
         vsb.pack(side=tk.RIGHT, fill=tk.Y)
 
         def section(title, body):
-            tk.Label(inner, text=title, font=("Arial", 11, "bold"),
+            tk.Label(inner, text=title, font=("Arial", 13, "bold"),
                      bg=BG, fg=SIDEBAR_BG, justify=tk.LEFT
                      ).pack(anchor="w", padx=30, pady=(14, 2))
-            tk.Label(inner, text=body, font=("Courier", 9),
+            tk.Label(inner, text=body, font=("Courier", 11),
                      bg=BG, fg="#333", justify=tk.LEFT
                      ).pack(anchor="w", padx=30)
 
@@ -479,7 +479,7 @@ class PolyfitGUI(tk.Tk):
                       "─────────────────────────────────────────────────────\n"
                       "Reference:  R. Reischke, Macromol. Theory Simul. 32 (2023) 2200063\n"
                       "DOI: 10.1002/mats.202200063",
-                 font=("Arial", 9), bg=BG, fg="#888",
+                 font=("Arial", 11), bg=BG, fg="#888",
                  justify=tk.LEFT).pack(anchor="w", padx=30, pady=(16, 4))
 
         self._frames.append(f)
@@ -516,18 +516,18 @@ class PolyfitGUI(tk.Tk):
             "CSV 6-col (.csv)  — as 5-col, plus:\n"
             "                    col 6: df0  absolute 1σ uncertainty on f0\n"
             "                    → f0 error propagated (Skeist model only)"
-        ), font=("Courier", 9), bg=BG, fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Courier", 11), bg=BG, fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         pf = tk.LabelFrame(f, text="Preview  (first 5 rows)", bg=BG, padx=6, pady=4)
         pf.pack(fill=tk.X, padx=30, pady=(8, 0))
-        self._preview_text = tk.Text(pf, height=5, font=("Courier", 10),
+        self._preview_text = tk.Text(pf, height=5, font=("Courier", 12),
                                      state=tk.DISABLED, bg="#F4F4F4")
         self._preview_text.pack(fill=tk.X)
 
         btn_row = tk.Frame(f, bg=BG)
         btn_row.pack(fill=tk.X, padx=30, pady=6)
         ttk.Button(btn_row, text="Load preview", command=self._do_preview).pack(side=tk.LEFT)
-        self._fmt_label = tk.Label(btn_row, text="", font=("Arial", 9),
+        self._fmt_label = tk.Label(btn_row, text="", font=("Arial", 11),
                                    bg=BG, fg="#007700")
         self._fmt_label.pack(side=tk.LEFT, padx=12)
         self._frames.append(f)
@@ -600,7 +600,7 @@ class PolyfitGUI(tk.Tk):
             "  Choose 'Relative error' for a percentage uncertainty (e.g. 0.05 = 5 %)\n"
             "  or 'Absolute error' for a fixed ±value.\n"
             "  For a full N×N covariance matrix (correlated errors), supply a text file."
-        ), font=("Arial", 9), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
 
         expl = tk.LabelFrame(inner, text="What do the three covariance terms mean?",
                              bg="#F0F4FF", padx=10, pady=6)
@@ -619,7 +619,7 @@ class PolyfitGUI(tk.Tk):
             "         measurement (e.g. two integrals from a single NMR spectrum;\n"
             "         in that case errors in the spectrum shift both f₂ and F₂\n"
             "         simultaneously, creating a positive correlation)."
-        ), font=("Arial", 9), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._cov_xm  = tk.StringVar(value="rel")
         self._cov_xv  = tk.StringVar(value="0.0")
@@ -649,7 +649,7 @@ class PolyfitGUI(tk.Tk):
             "For 6-column CSV files:  df0 is read from column 6 — leave the field below empty.\n"
             "For plain-text Skeist data:  enter the f0 uncertainty here.\n\n"
             "For all other models (Mayo-Lewis, custom):  this field is ignored."
-        ), font=("Arial", 9), bg="#F4FFF4", fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#F4FFF4", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._cov_ffm = tk.StringVar(value="rel")
         self._cov_ffv = tk.StringVar(value="0.0")
@@ -679,20 +679,20 @@ class PolyfitGUI(tk.Tk):
             "Optionally, dmodel_f0(parameters, x) can be defined to also propagate\n"
             "uncertainty in f0 (the initial feed composition, Skeist model only).\n"
             "The Skeist template below already includes all three functions."
-        ), font=("Arial", 9), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._v_model = tk.StringVar(value=list(MODELS)[0])
 
         row = tk.Frame(f, bg=BG)
         row.pack(fill=tk.X, padx=30, pady=4)
-        tk.Label(row, text="Model:", font=("Arial", 10), bg=BG,
+        tk.Label(row, text="Model:", font=("Arial", 12), bg=BG,
                  width=10, anchor="w").pack(side=tk.LEFT)
         cb = ttk.Combobox(row, textvariable=self._v_model,
                           values=list(MODELS), state="readonly", width=46)
         cb.pack(side=tk.LEFT)
         cb.bind("<<ComboboxSelected>>", self._load_model_template)
 
-        self._model_hint = tk.Label(f, text="", font=("Arial", 9),
+        self._model_hint = tk.Label(f, text="", font=("Arial", 11),
                                     bg=BG, fg="#555", justify=tk.LEFT)
         self._model_hint.pack(anchor="w", padx=30, pady=(4, 8))
 
@@ -700,7 +700,7 @@ class PolyfitGUI(tk.Tk):
                            bg=BG, padx=6, pady=4)
         cf.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 8))
         self._model_code = scrolledtext.ScrolledText(
-            cf, font=("Courier", 10), height=12)
+            cf, font=("Courier", 12), height=12)
         self._model_code.pack(fill=tk.BOTH, expand=True)
 
         self._load_model_template(None)
@@ -747,7 +747,7 @@ class PolyfitGUI(tk.Tk):
             "but not so wide that the optimiser gets lost in flat regions.\n"
             "For reactivity ratios, [0, 2] or [0, 5] is usually sufficient.\n"
             "Negative values are physical only if the model permits them."
-        ), font=("Arial", 9), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._v_p1min  = tk.StringVar(value="0.0")
         self._v_p1max  = tk.StringVar(value="2.0")
@@ -763,7 +763,7 @@ class PolyfitGUI(tk.Tk):
         ]:
             row = tk.Frame(prior_box, bg=BG)
             row.pack(fill=tk.X, pady=5)
-            tk.Label(row, text=label, font=("Arial", 10), bg=BG,
+            tk.Label(row, text=label, font=("Arial", 12), bg=BG,
                      width=26, anchor="w").pack(side=tk.LEFT)
             ttk.Entry(row, textvariable=vmin, width=10).pack(side=tk.LEFT, padx=(0, 4))
             tk.Label(row, text="to", bg=BG).pack(side=tk.LEFT)
@@ -781,15 +781,15 @@ class PolyfitGUI(tk.Tk):
             "  N_inter = 500  →  publication quality, very slow for Skeist\n\n"
             "For the Skeist model (high conversion) each likelihood evaluation\n"
             "involves numerical integration, so keep N_inter ≤ 150."
-        ), font=("Arial", 9), bg=BG, fg="#333", justify=tk.LEFT).pack(anchor="w", pady=(0, 6))
+        ), font=("Arial", 11), bg=BG, fg="#333", justify=tk.LEFT).pack(anchor="w", pady=(0, 6))
 
         row = tk.Frame(grid_box, bg=BG)
         row.pack(fill=tk.X)
-        tk.Label(row, text="N_inter:", font=("Arial", 10), bg=BG,
+        tk.Label(row, text="N_inter:", font=("Arial", 12), bg=BG,
                  width=12, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(row, textvariable=self._v_ninter, width=7).pack(side=tk.LEFT)
         tk.Label(row, text="  grid points per axis",
-                 font=("Arial", 9), bg=BG, fg="#777").pack(side=tk.LEFT)
+                 font=("Arial", 11), bg=BG, fg="#777").pack(side=tk.LEFT)
 
         self._frames.append(f)
 
@@ -833,7 +833,7 @@ class PolyfitGUI(tk.Tk):
             "The test produces a histogram of chi²_mock values with the observed\n"
             "chi²_data marked as a dotted vertical line.  More mocks → smoother\n"
             "histogram but longer run time (each mock requires a full re-fit)."
-        ), font=("Arial", 9), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._v_run_pte = tk.BooleanVar(value=False)
         self._v_n_pte   = tk.StringVar(value="200")
@@ -849,16 +849,16 @@ class PolyfitGUI(tk.Tk):
 
         n_row = tk.Frame(pte_box, bg=BG)
         n_row.pack(fill=tk.X)
-        tk.Label(n_row, text="Number of mock datasets:", font=("Arial", 10),
+        tk.Label(n_row, text="Number of mock datasets:", font=("Arial", 12),
                  bg=BG, width=26, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(n_row, textvariable=self._v_n_pte, width=7).pack(side=tk.LEFT)
         tk.Label(n_row, text="  N_mock  (100–1000 recommended)",
-                 font=("Arial", 9), bg=BG, fg="#777").pack(side=tk.LEFT)
+                 font=("Arial", 11), bg=BG, fg="#777").pack(side=tk.LEFT)
 
         tk.Label(pte_box,
                  text="\nNote: each mock fit runs Nelder-Mead from the best-fit parameters.\n"
                       "200 mocks takes roughly the same time as the main fit itself.",
-                 font=("Arial", 9), bg=BG, fg="#666").pack(anchor="w")
+                 font=("Arial", 11), bg=BG, fg="#666").pack(anchor="w")
 
         self._frames.append(f)
 
@@ -876,7 +876,7 @@ class PolyfitGUI(tk.Tk):
             "Example:  $r_2$  renders as r₂,   $F_\\mathrm{cum}$  renders as F_cum.\n"
             "Full LaTeX rendering (requires LaTeX + dvipng installed) can be\n"
             "enabled with the checkbox below.  MathText works without any TeX install."
-        ), font=("Arial", 9), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
 
         self._v_xlabel = tk.StringVar(value="$f_2$")
         self._v_ylabel = tk.StringVar(value="$F_2$")
@@ -907,12 +907,12 @@ class PolyfitGUI(tk.Tk):
 
         zoom_box = tk.Frame(f, bg=BG)
         zoom_box.pack(fill=tk.X, padx=30, pady=4)
-        tk.Label(zoom_box, text="Contour plot zoom:", font=("Arial", 10),
+        tk.Label(zoom_box, text="Contour plot zoom:", font=("Arial", 12),
                  bg=BG, width=26, anchor="w").pack(side=tk.LEFT)
         ttk.Entry(zoom_box, textvariable=self._v_zoom, width=6).pack(side=tk.LEFT)
         tk.Label(zoom_box,
                  text="  1.0 = auto-range  (±10σ);  0.5 = zoomed in  2×",
-                 font=("Arial", 9), bg=BG, fg="#777").pack(side=tk.LEFT)
+                 font=("Arial", 11), bg=BG, fg="#777").pack(side=tk.LEFT)
 
         self._frames.append(f)
 
@@ -938,7 +938,7 @@ class PolyfitGUI(tk.Tk):
             "Best-fit curve:    Tabulated x–y values of the best-fit curve.\n"
             "PTE histogram:     χ² distribution from mock datasets with the\n"
             "                   observed χ² marked; only written when PTE is enabled."
-        ), font=("Arial", 9), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
+        ), font=("Arial", 11), bg="#FFF8E7", fg="#555", justify=tk.LEFT).pack(anchor="w")
 
         self._v_o_contour_plot = tk.StringVar(value="./output/contour.pdf")
         self._v_o_bestfit_plot = tk.StringVar(value="./output/bestfit.pdf")
@@ -958,7 +958,7 @@ class PolyfitGUI(tk.Tk):
             self._saveas_field(f, label, var)
 
         tk.Label(f, text="  The PTE histogram is only written if 'Run PTE test' is enabled in Step 5.",
-                 font=("Arial", 9), bg=BG, fg="#888").pack(anchor="w", padx=30)
+                 font=("Arial", 11), bg=BG, fg="#888").pack(anchor="w", padx=30)
 
         self._frames.append(f)
 
@@ -974,7 +974,7 @@ class PolyfitGUI(tk.Tk):
         lf = tk.LabelFrame(f, text="Log", bg=BG, padx=4, pady=4)
         lf.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 10))
         self._log = scrolledtext.ScrolledText(
-            lf, font=("Courier", 9), state=tk.DISABLED,
+            lf, font=("Courier", 11), state=tk.DISABLED,
             bg="#0D1117", fg="#58A6FF",
             insertbackground="white", height=16)
         self._log.pack(fill=tk.BOTH, expand=True)
@@ -992,11 +992,11 @@ class PolyfitGUI(tk.Tk):
         last = len(self.STEPS) - 1
         for i, lbl in enumerate(self._sb_labels):
             if i < idx:
-                lbl.config(fg=DONE_COL, font=("Arial", 10))
+                lbl.config(fg=DONE_COL, font=("Arial", 12))
             elif i == idx:
-                lbl.config(fg="white", font=("Arial", 10, "bold"))
+                lbl.config(fg="white", font=("Arial", 12, "bold"))
             else:
-                lbl.config(fg=MUTED, font=("Arial", 10))
+                lbl.config(fg=MUTED, font=("Arial", 12))
 
         self._btn_back.config(state=tk.NORMAL if idx > 0     else tk.DISABLED)
         self._btn_next.config(state=tk.DISABLED if idx == last else tk.NORMAL,
