@@ -1,23 +1,42 @@
-from source.fit_model import FitModel
+"""
+polyfit — command-line entry point.
+
+Usage
+-----
+    python main.py              # uses input.ini
+    python main.py my_run.ini   # uses a custom config file
+
+The model is chosen automatically from the config:
+    [data_structure]
+    high_conversion = false   ->  Mayo-Lewis instantaneous model
+    high_conversion = true    ->  Skeist integrated model (X > 5 %)
+
+See README.md for the full configuration reference.
+"""
+
 import sys
+import configparser
+
+from source.fit_model import FitModel
+from source.models import (mayo_lewis, mayo_lewis_deriv,
+                            skeist, skeist_deriv, skeist_deriv_f0)
 
 
-# defines the model as a function of the two parameters and the independent variable, here Mayo-Lewis terminal model
-def model(parameters, f2):
-    r1 = parameters[1]
-    r2 = parameters[0]
-    return (r2*f2**2.0 + f2*(1.0-f2))/(r2*f2**2.0 + 2*f2*(1.0-f2) + r1*(1-f2)**2.0)
-
-# defines the derivative of the model with respect to the data
-def dmodel(parameters, f2):
-    r1 = parameters[1]
-    r2 = parameters[0]
-    return (2.0*r2*f2-2*f2 + 1.0)/(r2*f2**2.0 + 2*f2*(1.0-f2) + r1*(1-f2)**2.0) - (r2*f2**2.0+f2*(1.0-f2))*(r2*f2**2.0 + 2*f2*(1.0-f2) + r1*(1-f2)**2.0)**(-2.0)*(2*f2*r2+2-4.0*f2-2.0*r1*(1.0-f2))
+def _is_high_conversion(config_file: str) -> bool:
+    cfg = configparser.ConfigParser()
+    cfg.read(config_file)
+    return cfg.getboolean('data_structure', 'high_conversion', fallback=False)
 
 
-if len(sys.argv) > 1:
-    config = str(sys.argv[1])
-    fit = FitModel(model, dmodel, config)
+config_file = sys.argv[1] if len(sys.argv) > 1 else 'input.ini'
+
+if _is_high_conversion(config_file):
+    print("Model: Skeist integrated equation (high conversion)")
+    fit = FitModel(skeist, skeist_deriv, config_file, derivative_model_f0=skeist_deriv_f0)
 else:
-    fit = FitModel(model, dmodel, "input.ini")
+    print("Model: Mayo-Lewis instantaneous equation")
+    fit = FitModel(mayo_lewis, mayo_lewis_deriv, config_file)
+
+if fit.run_pte:
+    fit.run_pte_test(N_mock=fit.N_pte, output_file=fit.pte_output_file)
 

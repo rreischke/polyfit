@@ -1,8 +1,22 @@
-.DS_Store
-*.ipynb
+# macOS metadata
+**/.DS_Store
+
+# Python build artifacts
+__pycache__/
 *.pyc
+*.pyo
+*.pyd
 *.so
 *.o
 *.egg
-__pycache__
-.vscode
+*.egg-info/
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter notebooks (except the examples directory)
+*.ipynb
+!examples/*.ipynb
