@@ -14,7 +14,7 @@ Convention (both models)
 
 Choosing between models
 -----------------------
-Mayo-Lewis  — valid when fractional conversion X < ~5 %.  The feed
+Mayo-Lewis  — valid when cumulative conversion X < ~5 %.  The feed
               composition barely changes during the reaction, so the
               instantaneous composition is a good approximation of the
               cumulative copolymer composition.
@@ -26,11 +26,11 @@ Skeist      — required when X > ~5 %.  The feed drifts as the more
 
 Data format for the Skeist model
 ---------------------------------
-The independent variable is fractional conversion X_conv, not feed
+The independent variable is cumulative conversion X_cum, not feed
 composition f.  Because each experiment starts from a different initial
 feed f0, the data must supply both values per point:
 
-    x = [f0, X_conv]   (a length-2 array per data point)
+    x = [f0, X_cum]   (a length-2 array per data point)
 
 The ReadData loader produces this automatically when
 ``high_conversion = true`` is set in the ``[data_structure]`` config
@@ -57,7 +57,7 @@ def mayo_lewis(parameters, f):
     assuming only terminal-unit effects (i.e. reactivity depends only on the
     last inserted monomer, not on earlier units in the chain).
 
-    Valid when fractional conversion X < ~5 %.  At higher conversions use
+    Valid when cumulative conversion X < ~5 %.  At higher conversions use
     :func:`skeist` instead.
 
     Parameters
@@ -109,13 +109,13 @@ def mayo_lewis_deriv(parameters, f):
 # Skeist integrated model  (high conversion, X > ~5 %)
 # ---------------------------------------------------------------------------
 
-def _skeist_find_f_final(parameters, f0, X_conv, n=400):
+def _skeist_find_f_final(parameters, f0, X_cum, n=400):
     """Solve the Skeist integral equation for the final feed composition f.
 
-    The Skeist equation relates the change in feed composition to fractional
+    The Skeist equation relates the change in feed composition to cumulative
     conversion by integrating the Mayo-Lewis equation:
 
-        ∫[f0 → f_final] df' / (F(f') - f') = ln(1 - X_conv)
+        ∫[f0 → f_final] df' / (F(f') - f') = ln(1 - X_cum)
 
     Instead of calling a quadrature routine inside a root-finder
     the integrand is evaluated on a fixed grid of *n* points in one vectorised
@@ -135,8 +135,8 @@ def _skeist_find_f_final(parameters, f0, X_conv, n=400):
         ``[r2, r1]`` — reactivity ratios.
     f0 : float
         Initial feed mole fraction of M2.
-    X_conv : float
-        Fractional monomer conversion (0 < X_conv < 1).
+    X_cum : float
+        Cumulative monomer conversion (0 < X_cum < 1).
     n : int, optional
         Number of grid points (default 400).
 
@@ -146,7 +146,7 @@ def _skeist_find_f_final(parameters, f0, X_conv, n=400):
         Feed mole fraction of M2 at the end of the reaction, f_final.
         Clamped to the grid edge if conversion exceeds the integrated range.
     """
-    target = np.log(1.0 - X_conv)
+    target = np.log(1.0 - X_cum)
 
     if mayo_lewis(parameters, f0) >= f0:
         f_grid = np.linspace(f0, 1e-6, n)
@@ -176,15 +176,15 @@ def skeist(parameters, x):
     """Cumulative copolymer composition via the Skeist integrated equation.
 
     The cumulative composition F_cum is the average composition of all
-    copolymer formed from the start of the reaction up to conversion X_conv.
+    copolymer formed from the start of the reaction up to conversion X_cum.
     It is derived from the Skeist integral via the monomer mass balance:
 
-        F_cum = (f0 - f_final · (1 - X_conv)) / X_conv
+        F_cum = (f0 - f_final · (1 - X_cum)) / X_cum
 
     where f_final is obtained by solving the Skeist integral numerically
     (see :func:`_skeist_find_f_final`).
 
-    Use this model when fractional conversion X > ~5 %.  At X → 0 the
+    Use this model when cumulative conversion X > ~5 %.  At X → 0 the
     result converges to the instantaneous Mayo-Lewis value.
 
     Parameters
@@ -192,8 +192,8 @@ def skeist(parameters, x):
     parameters : array-like, length 2
         ``[r2, r1]`` — reactivity ratios.
     x : array-like, length 2
-        ``x[0] = f0``     — initial feed mole fraction of M2.
-        ``x[1] = X_conv`` — fractional monomer conversion (0 < X_conv < 1).
+        ``x[0] = f0``    — initial feed mole fraction of M2.
+        ``x[1] = X_cum`` — cumulative monomer conversion (0 < X_cum < 1).
 
     Returns
     -------
@@ -235,8 +235,8 @@ def skeist_deriv_f0(parameters, x):
     parameters : array-like, length 2
         ``[r2, r1]`` — reactivity ratios.
     x : array-like, length 2
-        ``x[0] = f0``     — initial feed mole fraction of M2.
-        ``x[1] = X_conv`` — fractional monomer conversion.
+        ``x[0] = f0``    — initial feed mole fraction of M2.
+        ``x[1] = X_cum`` — cumulative monomer conversion.
 
     Returns
     -------
@@ -256,7 +256,7 @@ def skeist_deriv_f0(parameters, x):
 
 
 def skeist_deriv(parameters, x):
-    """Analytical derivative dF_cum/dX_conv.
+    """Analytical derivative dF_cum/dX_cum.
 
     Derived by differentiating the mass balance and the Skeist integral
     simultaneously with respect to X.
@@ -281,13 +281,13 @@ def skeist_deriv(parameters, x):
     parameters : array-like, length 2
         ``[r2, r1]`` — reactivity ratios.
     x : array-like, length 2
-        ``x[0] = f0``     — initial feed mole fraction of M2.
-        ``x[1] = X_conv`` — fractional monomer conversion.
+        ``x[0] = f0``    — initial feed mole fraction of M2.
+        ``x[1] = X_cum`` — cumulative monomer conversion.
 
     Returns
     -------
     float
-        dF_cum/dX_conv evaluated at *x*.
+        dF_cum/dX_cum evaluated at *x*.
     """
     f0, X = float(x[0]), float(x[1])
     if X <= 1e-6:

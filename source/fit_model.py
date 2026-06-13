@@ -39,7 +39,7 @@ Supported models
 Any Python callable ``model(parameters, x)`` and ``dmodel(parameters, x)``
 may be passed.  For the built-in copolymerization models see
 ``source/models.py``.  When ``high_conversion = true`` in the config the
-data supplied to the model is ``x = [f0_i, X_conv_i]`` rather than a
+data supplied to the model is ``x = [f0_i, X_cum_i]`` rather than a
 scalar feed composition.
 
 Reference
@@ -100,7 +100,7 @@ class FitModel(ReadData):
     model : callable
         Forward model ``model(parameters, x) -> float``.
         *parameters* is a length-2 array ``[p1, p2]``; *x* is either a
-        scalar (standard models) or a length-2 array ``[f0, X_conv]`` when
+        scalar (standard models) or a length-2 array ``[f0, X_cum]`` when
         ``high_conversion = true`` in the config (Skeist model).
     derivative_model : callable
         ``dmodel(parameters, x) -> float`` — ∂model/∂x.  Required for EVM
@@ -192,9 +192,9 @@ class FitModel(ReadData):
 
         For the Skeist high-conversion model (``high_conversion = True``)
         the model needs both the initial feed composition *f0* and the
-        fractional conversion *X_conv* for each data point.  This property
+        cumulative conversion *X_cum* for each data point.  This property
         stacks them into a 2-D array of shape ``(N, 2)`` so that iterating
-        over it yields ``[f0_i, X_conv_i]`` rows.
+        over it yields ``[f0_i, X_cum_i]`` rows.
         """
         if self.high_conversion and self.data_f0 is not None:
             return np.column_stack([self.data_f0, self.data_X])
@@ -299,7 +299,7 @@ class FitModel(ReadData):
         float or ndarray
             Partial derivative (same shape as the output of *func*).
         """
-        args = point[:]
+        args = list(point)
 
         def wraps(x):
             args[var] = x
@@ -311,7 +311,7 @@ class FitModel(ReadData):
         """Numerical partial derivative of *func(parameters, data)* w.r.t. *parameters[var]*.
 
         Uses a central-difference formula with dx=1e-5.
-        The *data* argument (a single x value or ``[f0, X_conv]`` pair) is
+        The *data* argument (a single x value or ``[f0, X_cum]`` pair) is
         held fixed while the selected parameter is varied.
 
         Parameters
@@ -320,7 +320,7 @@ class FitModel(ReadData):
             Function with signature ``func(parameters, data)``, e.g.
             ``self.model``.
         data : float or array-like
-            Fixed x value (or ``[f0, X_conv]`` for Skeist) for this data point.
+            Fixed x value (or ``[f0, X_cum]`` for Skeist) for this data point.
         var : int
             Index of the parameter to differentiate with respect to.
         point : list
@@ -331,7 +331,7 @@ class FitModel(ReadData):
         float
             ∂func/∂parameters[var] at *point* and *data*.
         """
-        args = point[:]
+        args = list(point)
 
         def wraps(x):
             args[var] = x
@@ -685,7 +685,7 @@ class FitModel(ReadData):
 
         For the Skeist high-conversion model: plots one curve per unique
         initial feed composition f0 found in the data, since F_cum depends
-        on both f0 and X_conv.
+        on both f0 and X_cum.
 
         Also populates ``self.Xfid`` and ``self.Ybf`` used by
         :meth:`print_give_result` to save the curve data to a text file.
@@ -824,7 +824,7 @@ class FitModel(ReadData):
 
         ``file_name_best_fit``
             Two-column text (x, model(x)) for the best-fit curve.
-            For Skeist runs: three-column text (f0, X_conv, F_cum_model)
+            For Skeist runs: three-column text (f0, X_cum, F_cum_model)
             giving predictions at each observed data point.
 
         ``file_name_contour``
@@ -855,7 +855,7 @@ class FitModel(ReadData):
         with open(self.file_name_best_fit, 'w') as f:
             if self.high_conversion and self.data_f0 is not None:
                 f.write("### Best fit curve (Skeist high-conversion)\n")
-                f.write("### f0   X_conv   F_cum_model\n")
+                f.write("### f0   X_cum   F_cum_model\n")
                 np.savetxt(f, np.column_stack([self.data_f0, self.Xfid, self.Ybf]))
             else:
                 f.write("### Best fit curve\n")

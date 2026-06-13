@@ -35,7 +35,7 @@ MODELS = {
     "Mayo-Lewis  (copolymerization)": {
         "hint": (
             "Terminal model for instantaneous copolymer composition.\n"
-            "Valid when fractional conversion X < ~5 %.\n\n"
+            "Valid when cumulative conversion X < ~5 %.\n\n"
             "  p1 = r2 — reactivity ratio of monomer M2\n"
             "            r2 < 1: M2 prefers to cross-propagate (insert M1)\n"
             "            r2 > 1: M2 prefers self-propagation (insert M2)\n"
@@ -60,14 +60,14 @@ def dmodel(parameters, f2):
     },
     "Skeist  (high conversion, X > 5%)": {
         "hint": (
-            "Integrated copolymerization model for high fractional conversion.\n"
+            "Integrated copolymerization model for high cumulative conversion.\n"
             "Use this when X > ~5 % and the feed composition drifts during reaction.\n\n"
             "  p1 = r2 — reactivity ratio of monomer M2\n"
             "  p2 = r1 — reactivity ratio of monomer M1\n\n"
             "Required data columns (CSV):\n"
             "  col 1: f0      — initial feed mole fraction of M2\n"
-            "  col 2: X_conv  — fractional monomer conversion (0–1)\n"
-            "  col 3: dX      — absolute 1σ uncertainty on X_conv  (5-col CSV)\n"
+            "  col 2: X_cum   — cumulative monomer conversion (0–1)\n"
+            "  col 3: dX      — absolute 1σ uncertainty on X_cum  (5-col CSV)\n"
             "  col 4: F_cum   — measured cumulative copolymer composition\n"
             "  col 5: dF_cum  — absolute 1σ uncertainty on F_cum\n"
             "  col 6: df0     — absolute 1σ uncertainty on f0  (6-col CSV only)\n\n"
@@ -80,11 +80,11 @@ def dmodel(parameters, f2):
 from source.models import skeist, skeist_deriv, skeist_deriv_f0
 
 def model(parameters, x):
-    \"\"\"Cumulative copolymer composition F_cum(r2, r1 | f0, X_conv).\"\"\"
+    \"\"\"Cumulative copolymer composition F_cum(r2, r1 | f0, X_cum).\"\"\"
     return skeist(parameters, x)
 
 def dmodel(parameters, x):
-    \"\"\"Analytical dF_cum/dX_conv — for X-error propagation.\"\"\"
+    \"\"\"Analytical dF_cum/dX_cum — for X-error propagation.\"\"\"
     return skeist_deriv(parameters, x)
 
 def dmodel_f0(parameters, x):
@@ -441,9 +441,9 @@ class PolyfitGUI(tk.Tk):
             "the more reactive monomer is consumed faster.  The Skeist\n"
             "model integrates Mayo-Lewis over the full conversion path.\n"
             "\n"
-            "The independent variable becomes X_conv (fractional conversion)\n"
+            "The independent variable becomes X_cum (cumulative conversion)\n"
             "and each experiment starts from an initial feed f0, so both\n"
-            "f0 and X_conv appear in the data.  If f0 also has a measurement\n"
+            "f0 and X_cum appear in the data.  If f0 also has a measurement\n"
             "uncertainty it can be propagated via dF_cum/df0 (6-col CSV).")
 
         section("Supported data formats",
@@ -692,9 +692,11 @@ class PolyfitGUI(tk.Tk):
         cb.pack(side=tk.LEFT)
         cb.bind("<<ComboboxSelected>>", self._load_model_template)
 
-        self._model_hint = tk.Label(f, text="", font=("Arial", 11),
-                                    bg=BG, fg="#555", justify=tk.LEFT)
-        self._model_hint.pack(anchor="w", padx=30, pady=(4, 8))
+        self._model_hint = scrolledtext.ScrolledText(
+            f, font=("Arial", 11), height=7, state=tk.DISABLED,
+            bg="#F8F8F8", fg="#555", relief="flat", wrap=tk.WORD,
+            borderwidth=0)
+        self._model_hint.pack(fill=tk.X, padx=30, pady=(4, 8))
 
         cf = tk.LabelFrame(f, text="Code  (editable — changes are applied at run time)",
                            bg=BG, padx=6, pady=4)
@@ -708,7 +710,10 @@ class PolyfitGUI(tk.Tk):
 
     def _load_model_template(self, _event):
         info = MODELS[self._v_model.get()]
-        self._model_hint.config(text=info["hint"])
+        self._model_hint.config(state=tk.NORMAL)
+        self._model_hint.delete("1.0", tk.END)
+        self._model_hint.insert(tk.END, info["hint"])
+        self._model_hint.config(state=tk.DISABLED)
         self._model_code.delete("1.0", tk.END)
         self._model_code.insert(tk.END, info["code"])
 
