@@ -143,11 +143,13 @@ class FitModel(ReadData):
                  model,
                  derivative_model,
                  config_name='input.ini',
-                 derivative_model_f0=None):
+                 derivative_model_f0=None,
+                 progress_callback=None):
         super().__init__(config_name=config_name)
         self.model = model
         self.derivative_model = derivative_model
         self.derivative_model_f0 = derivative_model_f0
+        self._progress_callback = progress_callback
         self.number_parameters = len(self.prior_range[:, 0])
         self.best_fit = None
         self.max_func = None
@@ -483,7 +485,8 @@ class FitModel(ReadData):
         Stores the normalised result in ``self.posterior_grid`` (shape
         ``(N_inter, N_inter)``) and updates ``self.evidence``.
         """
-        print("creating posterior grid")
+        if self._progress_callback is None:
+            print("creating posterior grid")
 
         def _eval_row(px):
             row = np.empty(self.N_inter)
@@ -497,8 +500,12 @@ class FitModel(ReadData):
                        for i, px in enumerate(self.parameter_x)}
             for done, fut in enumerate(as_completed(futures), 1):
                 raw[futures[fut]] = fut.result()
-                print(f"\r  {done}/{self.N_inter} rows", end='', flush=True)
-        print()
+                if self._progress_callback is not None:
+                    self._progress_callback(done, self.N_inter)
+                else:
+                    print(f"\r  {done}/{self.N_inter} rows", end='', flush=True)
+        if self._progress_callback is None:
+            print()
 
         inner   = simpson(raw, x=self.parameter_y, axis=1)
         evidence = simpson(inner, x=self.parameter_x)

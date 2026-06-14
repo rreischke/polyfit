@@ -40,8 +40,8 @@ MODELS = {
             "            r2 < 1: M2 prefers to cross-propagate (insert M1)\n"
             "            r2 > 1: M2 prefers self-propagation (insert M2)\n"
             "  p2 = r1 — reactivity ratio of monomer M1 (same convention)\n\n"
-            "Data format:  2-column plain text (X = f₂, F = F₂)\n"
-            "              or 4/5-column CSV (f0, X, [dX,] F, dF)"
+            "Data format:  2-column plain text (f = f₂, F = F₂)\n"
+            "              or 4/5-column CSV (f0, f, [df,] F, dF)"
         ),
         "code": """\
 def model(parameters, f2):
@@ -402,6 +402,9 @@ class PolyfitGUI(tk.Tk):
             "data and returns a best-fit parameter vector together with\n"
             "proper Bayesian credible regions.\n"
             "Unlike a simple least-squares fit, it:\n"
+            "  •  uses your measurement uncertainties as weights — points\n"
+            "     with smaller errors contribute more to the fit\n"
+            "     (inverse-variance weighting, standard in Bayesian inference)\n"
             "  •  propagates errors on BOTH x and y (Errors-in-Variables)\n"
             "  •  handles correlated errors between x and y\n"
             "  •  evaluates the full 2-D posterior on a grid — credible\n"
@@ -447,7 +450,7 @@ class PolyfitGUI(tk.Tk):
             "uncertainty it can be propagated via dF_cum/df0 (6-col CSV).")
 
         section("Supported data formats",
-            "Plain text  (.txt)  2 col:  X, F\n"
+            "Plain text  (.txt)  2 col:  f, F\n"
             "                    Uncertainties set manually in Step 3.\n"
             "\n"
             "CSV 4-col   (.csv)  f0, X, F, dF\n"
@@ -500,8 +503,8 @@ class PolyfitGUI(tk.Tk):
         fmt_box.pack(fill=tk.X, padx=30, pady=(10, 4))
         tk.Label(fmt_box, text=(
             "Plain text (.txt) — 2 columns, whitespace-separated, no header\n"
-            "                    col 1: X    independent variable (e.g. f₂, feed composition)\n"
-            "                    col 2: F    dependent variable   (e.g. F₂, copolymer composition)\n"
+            "                    col 1: f    feed composition (e.g. f₂, mole fraction of M2)\n"
+            "                    col 2: F    copolymer composition (e.g. F₂)\n"
             "                    → set uncertainties manually in Step 3\n\n"
             "CSV 4-col (.csv)  — comma-separated, header optional\n"
             "                    col 1: f0   nominal feed composition (reference / Skeist grouping)\n"
@@ -540,7 +543,7 @@ class PolyfitGUI(tk.Tk):
             first = fh.readline().strip()
         is_csv = (ext == '.csv') or (',' in first)
         if not is_csv:
-            return "Plain text  (2-column: X, F)"
+            return "Plain text  (2-column: f, F)"
         try:
             float(first.split(',')[0].strip())
             skiprows = 0
@@ -620,6 +623,24 @@ class PolyfitGUI(tk.Tk):
             "         in that case errors in the spectrum shift both f₂ and F₂\n"
             "         simultaneously, creating a positive correlation)."
         ), font=("Arial", 11), bg="#F0F4FF", fg="#333", justify=tk.LEFT).pack(anchor="w")
+
+        mat_box = tk.LabelFrame(inner, text="External covariance matrix file format  (.txt)",
+                                bg="#FFF8E7", padx=10, pady=6)
+        mat_box.pack(fill=tk.X, padx=4, pady=(0, 6))
+        tk.Label(mat_box, text=(
+            "When 'External matrix file' is selected, provide a plain text file\n"
+            "containing an N×N matrix, where N is the number of data points.\n\n"
+            "Format:  whitespace-separated values, one row per line, no header.\n"
+            "  Entry [i, j]   =  covariance between measurement i and measurement j.\n"
+            "  Diagonal [i,i] =  σᵢ²  (variance = squared uncertainty of point i).\n"
+            "  Off-diagonal   =  0    for independent (uncorrelated) measurements.\n\n"
+            "IMPORTANT:  entries are VARIANCES (σ²), not standard deviations (σ).\n"
+            "  Example: σ = 0.05  →  enter  0.0025  on the diagonal.\n\n"
+            "Example — 3 uncorrelated data points each with σ = 0.05:\n"
+            "  0.0025  0.0000  0.0000\n"
+            "  0.0000  0.0025  0.0000\n"
+            "  0.0000  0.0000  0.0025"
+        ), font=("Courier", 11), bg="#FFF8E7", fg="#333", justify=tk.LEFT).pack(anchor="w")
 
         self._cov_xm  = tk.StringVar(value="rel")
         self._cov_xv  = tk.StringVar(value="0.0")
@@ -974,7 +995,18 @@ class PolyfitGUI(tk.Tk):
                                   "Click Run to start.  Output appears in the log below.")
         self._run_btn = ttk.Button(
             f, text="▶   Run polyfit", command=self._launch_run)
-        self._run_btn.pack(anchor="w", padx=30, pady=(0, 10))
+        self._run_btn.pack(anchor="w", padx=30, pady=(0, 6))
+
+        pb_row = tk.Frame(f, bg=BG)
+        pb_row.pack(fill=tk.X, padx=30, pady=(0, 8))
+        self._progress_var = tk.IntVar(value=0)
+        self._progress_bar = ttk.Progressbar(
+            pb_row, variable=self._progress_var, maximum=100, mode="determinate")
+        self._progress_bar.pack(fill=tk.X, side=tk.LEFT, expand=True)
+        self._progress_lbl = tk.Label(
+            pb_row, text="", font=("Arial", 10), bg=BG, fg="#555",
+            width=14, anchor="w")
+        self._progress_lbl.pack(side=tk.LEFT, padx=(8, 0))
 
         lf = tk.LabelFrame(f, text="Log", bg=BG, padx=4, pady=4)
         lf.pack(fill=tk.BOTH, expand=True, padx=30, pady=(0, 10))
@@ -984,6 +1016,10 @@ class PolyfitGUI(tk.Tk):
             insertbackground="white", height=16)
         self._log.pack(fill=tk.BOTH, expand=True)
         self._frames.append(f)
+
+    def _update_progress(self, done: int, total: int):
+        self._progress_var.set(int(done * 100 / total))
+        self._progress_lbl.config(text=f"{done} / {total} rows")
 
     # ------------------------------------------------------------------ #
     # Navigation
@@ -1203,6 +1239,8 @@ class PolyfitGUI(tk.Tk):
         self._log.delete("1.0", tk.END)
         self._log.config(state=tk.DISABLED)
         self._run_btn.config(state=tk.DISABLED)
+        self._progress_var.set(0)
+        self._progress_lbl.config(text="")
         threading.Thread(target=self._run_worker, daemon=True).start()
 
     def _run_worker(self):
@@ -1277,10 +1315,14 @@ class PolyfitGUI(tk.Tk):
 
             from source.fit_model import FitModel
 
+            def _progress_cb(done, total):
+                self.after(0, lambda d=done, t=total: self._update_progress(d, t))
+
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
                 fit = FitModel(model_fn, dmodel_fn, cfg_path,
-                               derivative_model_f0=dmodel_f0)
+                               derivative_model_f0=dmodel_f0,
+                               progress_callback=_progress_cb)
 
             for line in buf.getvalue().splitlines():
                 self._log_line(line)
@@ -1376,6 +1418,8 @@ class PolyfitGUI(tk.Tk):
             self._log_line(traceback.format_exc())
         finally:
             self.after(0, lambda: self._run_btn.config(state=tk.NORMAL))
+            self.after(0, lambda: self._progress_var.set(0))
+            self.after(0, lambda: self._progress_lbl.config(text=""))
             try:
                 os.remove(cfg_path)
             except Exception:
